@@ -109,7 +109,7 @@ func (s *Server) FUNCNAME(ctx context.Context, in *pb.INPUTCLS) (*pb.OUTPUTCLS, 
         # Err: 0, ErrMsg: ""
         def unzip_default_value(default_value):
             if isinstance(default_value, dict):
-                ret = "{\n"
+                ret = "{}:&pb.{}{{\n".format(utils.camelcase(attr_name),utils.camelcase(attr_name))
                 for sub_attr_name in default_value:
                     sub_attr_value = default_value[sub_attr_name]
                     if isinstance(sub_attr_value, dict):
@@ -118,17 +118,17 @@ func (s *Server) FUNCNAME(ctx context.Context, in *pb.INPUTCLS) (*pb.OUTPUTCLS, 
                     else:
                         ret += "{}:\"{}\",\n".format(utils.camelcase(sub_attr_name),
                                              sub_attr_value)
-                ret += "}"
+                ret += "},"
                 return ret
-            return default_value
+            return "{}:\"{}\",\n".format(utils.camelcase(attr_name),
+                                          default_value
+                                          )
 
         str_attr = ""
         input_attrs = func_obj.get_returns().get_attrs()
         for item in input_attrs:
             attr_name = item.get_name()
-            str_attr += "{}:\"{}\",\n".format(utils.camelcase(attr_name),
-                                          unzip_default_value(item.get_default_value())
-                                          )
+            str_attr += unzip_default_value(item.get_default_value())
 
         temp_tp_str = temp_tp_str.replace("OUTPUTATTRS", str_attr)
         svc_str += temp_tp_str
