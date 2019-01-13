@@ -1,0 +1,28 @@
+syntax = "proto3";
+package customer;
+
+
+// The service definition.
+service CommentReq {
+  // Create a new BaseReq - A simple RPC
+  rpc CreateComment (CommentRequest) returns (CommonResponse) {}
+}
+
+message Comment {
+  int64 comment_id = 1;
+  string content = 2;
+  int64 creator_id = 3;
+}
+
+// Request message for creating a new customer
+message CommentRequest {
+  int64 app = 1;
+  Comment comment = 2;
+}
+
+message CommonResponse {
+  int64 err = 1;
+  int32 no = 2;
+  string err_msg = 3;
+  string extra = 4;
+}
