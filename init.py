@@ -13,7 +13,7 @@ def cmd(cmdstr):
 def generate_pb():
     path = os.getcwd()
     cmdstr = "cd {} && ".format(path) + \
-             "python -m grpc_tools.protoc -I. --python_out=./output/ --grpc_python_out=./output/ test.proto"
+             "python3 -m grpc_tools.protoc -I. --python_out=./output/ --grpc_python_out=./output/ test.proto"
     print(cmdstr)
     cmd(cmdstr)
 

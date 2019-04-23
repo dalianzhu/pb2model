@@ -47,6 +47,11 @@ def camelcase(input_str):
     return ret
 
 
+def first_lower_camelcase(input_str):
+    input_str = camelcase(input_str)
+    return input_str[0].lower() + input_str[1:]
+
+
 def generate_model_json():
     ret = {}
     members = getmembers(test_pb2)
@@ -54,7 +59,9 @@ def generate_model_json():
         message = item[1]
         if not hasattr(message, 'DESCRIPTOR'):
             continue
-        ret[item[0]] = get_pb_field(message)
+        field = get_pb_field(message)
+        if field:
+            ret[item[0]] = field
     return ret
 
 
@@ -75,8 +82,20 @@ def generate_rpc_func_json():
     return ret
 
 
+def try_get_attr(field, attrname):
+    try:
+        print(attrname, field.name, getattr(field, attrname))
+    except:
+        pass
+
+
 def get_pb_field(pb_field):
+    # try_get_attr(pb_field, "containing_type")
+
     data = {}
+    if hasattr(pb_field, "message_type"):
+        data['_name'] = pb_field.message_type.name
+
     try:
         desc = pb_field.DESCRIPTOR
     except:
@@ -84,6 +103,8 @@ def get_pb_field(pb_field):
             desc = pb_field.message_type
         except:
             desc = pb_field
+    if not hasattr(desc, "fields"):
+        return None
 
     for field in desc.fields:
         field_name = field.name
@@ -92,4 +113,8 @@ def get_pb_field(pb_field):
             data[field_name] = "{}:{}".format(default_value, type_to_type_str(field.type))
         except:
             data[field_name] = get_pb_field(field)
+
+    if hasattr(pb_field, "containing_type"):
+        # 说明这个field是一个repeated类型
+        return [data]
     return data
