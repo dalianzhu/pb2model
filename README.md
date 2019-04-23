@@ -6,11 +6,11 @@
 
 安装依赖库：
 ```
-python -m pip install grpcio --ignore-installed
-python -m pip install grpcio-tools googleapis-common-protos
+python3 -m pip install grpcio --ignore-installed
+python3 -m pip install grpcio-tools googleapis-common-protos
 
-pip install protobuf==3.6.0
-pip install protobuf-to-dict
+python3 -m pip install protobuf==3.6.0
+python3 -m pip install protobuf-to-dict
 ```
 
 将根目录的test.proto文件内容修改为你需要的，默认为：
