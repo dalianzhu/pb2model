@@ -62,6 +62,8 @@ def generate_model_json():
         field = get_pb_field(message)
         if field:
             ret[item[0]] = field
+        else:
+            ret[item[0]] = {}
     return ret
 
 
@@ -90,7 +92,7 @@ def try_get_attr(field, attrname):
 
 
 def get_pb_field(pb_field):
-    # try_get_attr(pb_field, "containing_type")
+    # try_get_attr(pb_field, "name")
 
     data = {}
     if hasattr(pb_field, "message_type"):
