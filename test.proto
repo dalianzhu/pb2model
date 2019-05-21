@@ -1,28 +1,42 @@
 syntax = "proto3";
-package customer;
+package TiMatrix.ai_studio;
+option go_package = "pb3/TiMatrix/ai_studio";
+import "google/api/annotations.proto";
 
-
-// The service definition.
-service CommentReq {
-  // Create a new BaseReq - A simple RPC
-  rpc CreateComment (CommentRequest) returns (CommonResponse) {}
+message RegisterWorkerReq {
+    string url = 1 [json_name = "Url"]; //appid
+    string ip = 2 [json_name = "Ip"]; 
+    int64 port = 3 [json_name = "Port"]; 
+    string worker_name = 4 [json_name = "WorkerName"]; 
 }
 
-message Comment {
-  int64 comment_id = 1;
-  string content = 2;
-  int64 creator_id = 3;
+message RegisterWorkerRsp {
+    //错误不需在返回包中定义,通过grpc的error直接返回
+    string worker_name = 1 [json_name = "WorkerName"];
 }
 
-// Request message for creating a new customer
-message CommentRequest {
-  int64 app = 1;
-  Comment comment = 2;
+message RegisterUserServiceReq{
+    string service_name = 1 [json_name = "ServiceName"];
+    string service_code = 2 [json_name = "ServiceCode"];
+    string uin = 3 [json_name = "Uin"];
 }
 
-message CommonResponse {
-  int64 err = 1;
-  int32 no = 2;
-  string err_msg = 3;
-  string extra = 4;
+message RegisterUserServiceRsp{
+    string service_name = 1 [json_name = "ServiceName"];
+}
+
+service ServerLessMaster {
+    rpc RegisterWorker (RegisterWorkerReq) returns (RegisterWorkerRsp) {
+        option (google.api.http) = { 
+                post:"/RegisterWorker"
+                body:"*"
+            };
+    }
+
+    rpc RegisterUserService (RegisterUserServiceReq) returns (RegisterUserServiceRsp) {
+        option (google.api.http) = { 
+                post:"/RegisterUserService"
+                body:"*"
+            };
+    }
 }

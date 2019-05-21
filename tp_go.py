@@ -55,7 +55,6 @@ class TpGoStruct(interface.IModel):
             if "_name" in self.cls_json:
                 return self.cls_json['_name']
         return self.get_name()
-            
 
     @staticmethod
     def unzip_return_value(go_cls):
@@ -64,7 +63,8 @@ class TpGoStruct(interface.IModel):
             return '"{}"'.format(go_cls.get_value())
 
         elif cls_type == 'dict':
-            ret = "&pb.{}{{\n".format(utils.camelcase(go_cls.get_struct_name()))
+            ret = "&pb.{}{{\n".format(
+                utils.camelcase(go_cls.get_struct_name()))
             for sub_cls in go_cls.attrs:
                 ret += "{}:{},\n".format(utils.camelcase(sub_cls.get_name()),
                                          TpGoStruct.unzip_return_value(sub_cls))
@@ -72,7 +72,8 @@ class TpGoStruct(interface.IModel):
             return ret
         elif cls_type == 'list':
             tp_go_cls = go_cls.val
-            ret = "[]*pb.{}{{\n".format(utils.camelcase(tp_go_cls.get_struct_name()))
+            ret = "[]*pb.{}{{\n".format(
+                utils.camelcase(tp_go_cls.get_struct_name()))
             ret += "{}\n".format(TpGoStruct.unzip_return_value(tp_go_cls))
             ret += "}"
             return ret
@@ -90,12 +91,14 @@ class TpGoFunc(interface.IFunc):
 
     def get_inputs(self):
         # 返回传入参数，如pb.res,是一个 []IModel
-        str_input_type = self.func_json.get(self.name, {}).get("input_type", "")
+        str_input_type = self.func_json.get(
+            self.name, {}).get("input_type", "")
         return TpGoStruct(str_input_type, self.cls_json[str_input_type])
 
     def get_returns(self):
         # 返回函数返回值，如pb.rsp,是一个 []IModel
-        str_returns_type = self.func_json.get(self.name, {}).get("output_type", "")
+        str_returns_type = self.func_json.get(
+            self.name, {}).get("output_type", "")
         return TpGoStruct(str_returns_type, self.cls_json[str_returns_type])
 
 
@@ -107,10 +110,37 @@ package server
 import (
     pb "base_req"
     "context"
+	"fmt"
+
+	"git.code.oa.com/gobase/config"
+
+	pb "git.code.oa.com/TiMatrix/hello/pb3/TiMatrix/pbhello"
+	"git.code.oa.com/gobase/gobase"
+	"git.code.oa.com/gobase/logging"
+	_ "github.com/lib/pq"
 )
 
 type Server struct{}
 #SVCSTR#
+
+var cgiConf struct {
+	Mysql struct {
+		DBUser string `default:""`
+		DBPwd  string `default:""`
+		DBHost string `default:""`
+		DBPort string `default:""`
+		DBName string `default:""`
+	}
+}
+
+func main() {
+	config.Parse(&cgiConf)
+
+	gobase.GoBaseInit()
+	defer gobase.GoBaseFin()
+
+	pb.ListenAndServeNonVehicleSvc(&Server{})
+}
 """
 
     tp_str = """
@@ -121,7 +151,8 @@ func (s *Server) #FUNCNAME#(ctx context.Context, in *pb.#INPUTCLS#) (*pb.#OUTPUT
     // 写点逻辑
 
     return #OUTPUTCLSDETAIL# nil
-}    
+}
+
 """
     svc_str = ""
     for func_name in func_json:
