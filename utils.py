@@ -97,7 +97,6 @@ def get_pb_field(pb_field):
     data = {}
     if hasattr(pb_field, "message_type"):
         data['_name'] = pb_field.message_type.name
-
     try:
         desc = pb_field.DESCRIPTOR
     except:
@@ -112,11 +111,12 @@ def get_pb_field(pb_field):
         field_name = field.name
         try:
             default_value = field.default_value
-            data[field_name] = "{}:{}".format(default_value, type_to_type_str(field.type))
-        except:
-            data[field_name] = get_pb_field(field)
+            data[field_name] = "{}:{}".format(
+                default_value, type_to_type_str(field.type))
+        except Exception as err:
+            if field.label == 3:
+                data[field_name] = [get_pb_field(field)]
+            else:
+                data[field_name] = get_pb_field(field)
 
-    if hasattr(pb_field, "containing_type"):
-        # 说明这个field是一个repeated类型
-        return [data]
     return data
